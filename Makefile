@@ -18,9 +18,6 @@ test-cov:
 
 test-cov-html:
 	@$(MAKE) test MOCHA_OPTS='--require blanket' REPORTER=html-cov | ./node_modules/cov/bin/cov
-	# @rm -f coverage.html
-	# @$(MAKE) test MOCHA_OPTS='--require blanket' REPORTER=html-cov > coverage.html
-	# @ls -lh coverage.html
 
 test-coveralls: test
 	@echo TRAVIS_JOB_ID $(TRAVIS_JOB_ID)
