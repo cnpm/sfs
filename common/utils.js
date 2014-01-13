@@ -28,6 +28,7 @@ exports.sendfile = function (url, file, callback) {
     headers: form.headers(),
     stream: form,
     dataType: 'json',
+    timeout: 600000, // 10 minutes
   };
   args.headers.Authorization = 'Basic ' +
     new Buffer(config.credentials.join(':')).toString('base64');
