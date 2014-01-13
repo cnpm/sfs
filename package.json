@@ -1,0 +1,67 @@
+{
+  "name": "sfs",
+  "version": "0.0.0",
+  "description": "sfs",
+  "main": "index.js",
+  "scripts": {
+    "test": "make test-all"
+  },
+  "config": {
+    "blanket": {
+      "pattern": "//^((?!(node_modules|test|common)).)*$/",
+      "data-cover-flags": {
+        "debug": false
+      }
+    },
+    "travis-cov": {
+      "threshold": 80
+    }
+  },
+  "dependencies": {
+    "address": "0.0.3",
+    "body-parser": "1.0.0",
+    "connect": "2.12.0",
+    "connect-multiparty": "1.0.1",
+    "debug": "0.7.4",
+    "eventproxy": "0.2.6",
+    "formstream": "0.0.7",
+    "graceful": "0.0.5",
+    "logfilestream": "0.1.0",
+    "mkdirp": "0.3.5",
+    "moment": "2.5.0",
+    "ms": "0.6.2",
+    "response-patch": "0.1.1",
+    "urllib": "0.5.5",
+    "urlrouter": "0.5.4"
+  },
+  "devDependencies": {
+    "blanket": "*",
+    "clone": "0.1.11",
+    "contributors": "*",
+    "cov": "*",
+    "coveralls": "*",
+    "mocha": "*",
+    "mocha-lcov-reporter": "*",
+    "should": "2.1.1",
+    "supertest": "0.8.3",
+    "travis-cov": "*"
+  },
+  "homepage": "https://github.com/fengmk2/sfs",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/fengmk2/sfs.git",
+    "web": "https://github.com/fengmk2/sfs"
+  },
+  "bugs": {
+    "url": "https://github.com/fengmk2/sfs/issues",
+    "email": "fengmk2@gmail.com"
+  },
+  "keywords": [
+    "sfs"
+  ],
+  "engines": {
+    "node": ">= 0.10.0"
+  },
+  "author": "fengmk2 <fengmk2@gmail.com> (http://fengmk2.github.com)",
+  "license": "MIT"
+}
