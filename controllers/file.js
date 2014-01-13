@@ -44,6 +44,65 @@ exports.get = function (req, res, next) {
   });
 };
 
+var removefile = function (filename) {
+  config.nodes.forEach(function (node) {
+    if ((node.ip === '127.0.0.1' || node.ip === config.ip) && node.port === config.port) {
+      // current server
+      return;
+    }
+    var url = 'http://' + node.ip + ':' + node.port + '/sync/' + filename;
+    debug('remove file %s', url);
+    utils.removefile(url, function (err) {
+      if (err) {
+        logger.error(err);
+      }
+    });
+  });
+};
+
+exports.remove = function (req, res, next) {
+  var filename = req.params && req.params[0] || '';
+  if (!filename) {
+    return res.json(400, {message: 'filename missing'});
+  }
+  var filepath = path.join('/', filename);
+  filepath = path.join(config.rootDir, filepath);
+  debug('delete file %s', filepath);
+  fs.stat(filepath, function (err, stat) {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        removefile(filename);
+        return res.json(404, {message: 'file not exists'});
+      }
+      logger.error(err);
+      return res.json(500, {message: err.message});
+    }
+    removefile(filename);
+    fs.unlink(filepath, function () {});
+    res.json(200, {ok: true});
+  });
+};
+
+exports.removeOther = function (req, res, next) {
+  var filename = req.params && req.params[0] || '';
+  if (!filename) {
+    return res.json(400, {message: 'filename missing'});
+  }
+  filename = path.join('/', filename);
+  filename = path.join(config.rootDir, filename);
+  fs.stat(filename, function (err, stat) {
+    if (err) {
+      if (err.code === 'ENOENT') {
+        return res.json(404, {message: 'file not exists'});
+      }
+      logger.error(err);
+      return res.json(500, {message: err.message});
+    }
+    fs.unlink(filename, function () {});
+    res.json(200, {ok: true});
+  });
+};
+
 var syncfile = function (node, file, callback) {
   var url = 'http://' + node.ip + ':' + node.port + '/sync';
   debug('sync file %j to %s', file, url);

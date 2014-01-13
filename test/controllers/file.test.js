@@ -135,4 +135,36 @@ describe('controllers/file.test.js', function () {
       .expect(401, done);
     });
   });
+
+  describe('DELETE /file/:filename', function () {
+    it('should 401 without no auth info', function (done) {
+      request(app)
+      .del('/file/cov/cov-0.0.1.tgz')
+      .expect(401, done);
+    });
+
+    it('should remove file success', function (done) {
+      request(app)
+      .del('/file/cov/cov-0.0.2.tgz')
+      .set('Authorization', 'Basic ' + auth)
+      .expect(200, done);
+    });
+
+    it('should 200 and auto delete file to other nodes', function (done) {
+      var url = 'http://127.0.0.1:7002/file/cov/cov-0.0.1.tgz';
+      utils.removefile(url, function (err, result, res) {
+        should.not.exist(err);
+        result.should.eql({
+          ok: true
+        });
+        res.should.status(200);
+        setTimeout(function () {
+          fs.existsSync('/tmp/sfs_test3/cov/cov-0.0.1.tgz').should.equal(false);
+          fs.existsSync('/tmp/sfs_test2/cov/cov-0.0.1.tgz').should.equal(false);
+          fs.existsSync('/tmp/sfs_test4/cov/cov-0.0.1.tgz').should.equal(false);
+          done();
+        }, 100);
+      });
+    });
+  });
 });

@@ -57,7 +57,7 @@ sfs.start({
 
 (The MIT License)
 
-Copyright (c) 2014 fengmk2 &lt;fengmk2@gmail.com&gt; and other contributors
+Copyright (c) 2014 cnpmjs.org and other contributors
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the

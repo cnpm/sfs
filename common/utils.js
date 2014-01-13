@@ -34,3 +34,15 @@ exports.sendfile = function (url, file, callback) {
     new Buffer(config.credentials.join(':')).toString('base64');
   urllib.request(url, args, callback);
 };
+
+exports.removefile = function (url, callback) {
+  var args = {
+    type: 'DELETE',
+    headers: {},
+    dataType: 'json',
+    timeout: 20000,
+  };
+  args.headers.Authorization = 'Basic ' +
+    new Buffer(config.credentials.join(':')).toString('base64');
+  urllib.request(url, args, callback);
+};
