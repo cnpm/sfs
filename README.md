@@ -17,6 +17,10 @@ $ npm install sfs
 
 ## Usage
 
+Start two nodes sfs.
+
+### Node#1
+
 ```js
 var sfs = require('sfs');
 
@@ -25,6 +29,23 @@ sfs.start({
   rootDir: '/home/admin/sfs/files'
   logdir: '/home/admin/sfs/logs',
   port: 8081,
+  nodes: [
+    {ip: '127.0.0.1', port: 8081},
+    {ip: '127.0.0.1', port: 8082},
+  ],
+});
+```
+
+### Node#2
+
+```js
+var sfs = require('sfs');
+
+sfs.start({
+  enableCluster: true,
+  rootDir: '/home/admin/sfs/files'
+  logdir: '/home/admin/sfs/logs',
+  port: 8082,
   nodes: [
     {ip: '127.0.0.1', port: 8081},
     {ip: '127.0.0.1', port: 8082},
