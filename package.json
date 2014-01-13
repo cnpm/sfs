@@ -46,14 +46,14 @@
     "supertest": "0.8.3",
     "travis-cov": "*"
   },
-  "homepage": "https://github.com/fengmk2/sfs",
+  "homepage": "https://github.com/cnpm/sfs",
   "repository": {
     "type": "git",
-    "url": "git://github.com/fengmk2/sfs.git",
-    "web": "https://github.com/fengmk2/sfs"
+    "url": "git://github.com/cnpm/sfs.git",
+    "web": "https://github.com/cnpm/sfs"
   },
   "bugs": {
-    "url": "https://github.com/fengmk2/sfs/issues",
+    "url": "https://github.com/cnpm/sfs/issues",
     "email": "fengmk2@gmail.com"
   },
   "keywords": [

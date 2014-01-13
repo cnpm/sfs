@@ -1,11 +1,11 @@
 sfs
 =======
 
-[![Build Status](https://secure.travis-ci.org/fengmk2/sfs.png)](http://travis-ci.org/fengmk2/sfs) [![Coverage Status](https://coveralls.io/repos/fengmk2/sfs/badge.png)](https://coveralls.io/r/fengmk2/sfs) [![Dependency Status](https://gemnasium.com/fengmk2/sfs.png)](https://gemnasium.com/fengmk2/sfs)
+[![Build Status](https://secure.travis-ci.org/cnpm/sfs.png)](http://travis-ci.org/cnpm/sfs) [![Coverage Status](https://coveralls.io/repos/cnpm/sfs/badge.png)](https://coveralls.io/r/cnpm/sfs) [![Dependency Status](https://gemnasium.com/cnpm/sfs.png)](https://gemnasium.com/cnpm/sfs)
 
 [![NPM](https://nodei.co/npm/sfs.png?downloads=true&stars=true)](https://nodei.co/npm/sfs/)
 
-![logo](https://raw.github.com/fengmk2/sfs/master/logo.png)
+![logo](https://raw.github.com/cnpm/sfs/master/logo.png)
 
 Simple file store.
 
