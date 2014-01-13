@@ -1,6 +1,6 @@
 {
   "name": "sfs",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "sfs",
   "main": "index.js",
   "scripts": {
