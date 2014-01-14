@@ -26,7 +26,9 @@ var logger = require('../common/logger');
 var config = require('../config');
 
 function storepath(filename) {
-  if (!filename || !filename.trim()) {
+  filename = String(filename || '').trim();
+  filename = filename.replace(/[\/\.]+$/, '');
+  if (!filename) {
     return null;
   }
 
@@ -40,8 +42,11 @@ function storepath(filename) {
   if (filename.indexOf(config.rootDir) !== 0) {
     return null;
   }
+
   return filename;
 }
+
+var NOT_FOUND = ['ENOENT', 'ENAMETOOLONG', 'ENOTDIR'];
 
 exports.get = function (req, res, next) {
   var filename = req.params && req.params[0];
@@ -53,7 +58,7 @@ exports.get = function (req, res, next) {
   debug('read file %s', filename);
   fs.stat(filename, function (err, stat) {
     if (err) {
-      if (err.code === 'ENOENT') {
+      if (NOT_FOUND.indexOf(err.code) >= 0) {
         return next();
       }
       return next(err);
