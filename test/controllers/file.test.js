@@ -137,6 +137,36 @@ describe('controllers/file.test.js', function () {
       .get('/file/foo/foo-0.0.1.tgz')
       .expect(401, done);
     });
+
+    it('should 404 when try to get dir info', function (done) {
+      request(app)
+      .get('/file/cov')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
+
+    it('should 404 when try to get root dir info', function (done) {
+      request(app)
+      .get('/file//////')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
+
+    it('should 404 when try to get unsafe file info', function (done) {
+      request(app)
+      .get('/file/../../../../etc/hosts')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
   });
 
   describe('DELETE /file/:filename', function () {

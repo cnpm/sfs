@@ -26,17 +26,31 @@ var logger = require('../common/logger');
 var config = require('../config');
 
 function storepath(filename) {
+  if (!filename || !filename.trim()) {
+    return null;
+  }
+
+  if (filename.indexOf('\0') >= 0) {
+    return null;
+  }
+
   // remove unsafe chars, like '../../../../etc/password'
   filename = path.join('/', filename);
-  return path.join(config.rootDir, filename);
+  filename = path.normalize(path.join(config.rootDir, filename));
+  if (filename.indexOf(config.rootDir) !== 0) {
+    return null;
+  }
+  return filename;
 }
 
 exports.get = function (req, res, next) {
-  var filename = req.params && req.params[0] || '';
+  var filename = req.params && req.params[0];
+  filename = storepath(filename);
   if (!filename) {
     return next();
   }
-  filename = storepath(filename);
+
+  debug('read file %s', filename);
   fs.stat(filename, function (err, stat) {
     if (err) {
       if (err.code === 'ENOENT') {
@@ -44,6 +58,10 @@ exports.get = function (req, res, next) {
       }
       return next(err);
     }
+    if (stat.isDirectory()) {
+      return next();
+    }
+
     // TODO: http headers
     res.setHeader('Content-Length', stat.size);
     var stream = fs.createReadStream(filename);
@@ -71,11 +89,11 @@ var removefile = function (filename) {
 };
 
 exports.remove = function (req, res, next) {
-  var filename = req.params && req.params[0] || '';
-  if (!filename) {
-    return res.json(400, {message: 'filename missing'});
-  }
+  var filename = req.params && req.params[0];
   var filepath = storepath(filename);
+  if (!filepath) {
+    return next();
+  }
   debug('delete file %s', filepath);
   fs.stat(filepath, function (err, stat) {
     if (err) {
@@ -92,15 +110,16 @@ exports.remove = function (req, res, next) {
 };
 
 exports.removeOther = function (req, res, next) {
-  var filename = req.params && req.params[0] || '';
-  if (!filename) {
-    return res.json(400, {message: 'filename missing'});
-  }
+  var filename = req.params && req.params[0];
   filename = storepath(filename);
+  if (!filename) {
+    return next();
+  }
+
   fs.stat(filename, function (err, stat) {
     if (err) {
       if (err.code === 'ENOENT') {
-        return res.json(404, {message: 'file not exists'});
+        return next();
       }
       return next(err);
     }
@@ -118,22 +137,19 @@ var syncfile = function (node, file, callback) {
 var savefile = function (req, callback) {
   req.body = req.body || {};
   var filename = req.body.filename;
+  var savepath = storepath(filename);
   var shasum = req.body.shasum;
-  if (filename) {
-    filename = filename.trim();
-  }
   if (shasum) {
     shasum = shasum.trim();
   }
   var file = req.files && req.files.file;
   var err;
-  if (!filename || !file || !shasum) {
-    err = new Error('params missing');
-    err.statusCode = 400;
-    return callback(err);
+  if (!savepath || !file || !shasum) {
+    return callback({
+      status: 400,
+      message: 'params missing'
+    });
   }
-
-  var savepath = storepath(filename);
   debug('save file: %s to %s, shasum: %s size: %s, name: %s, type: %s, path: %s',
     filename, savepath, shasum, file.size, file.name, file.type, file.path);
 
