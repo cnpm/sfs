@@ -45,18 +45,41 @@ app.use(baseauth());
 app.use(urlrouter(routes));
 
 /**
+ * 404
+ */
+
+app.use(function (req, res, next) {
+  res.json(404, {
+    message: 'not found'
+  });
+});
+
+/**
  * Error handler
  */
 
 app.use(function (err, req, res, next) {
-  err.url = err.url || req.url;
-  console.error(err.stack);
-  logger.error(err);
-  if (config.debug) {
-    return next(err);
+  var statusCode = err.status || err.statusCode || 500;
+  var data = {
+    message: err.message
+  };
+
+  if (err.name) {
+    data.error = err.name;
   }
-  res.statusCode = 500;
-  res.send('Server has some problems. :(');
+
+  if (statusCode >= 500) {
+    err.url = err.url || req.url;
+    console.error(err.stack);
+    logger.error(err);
+    if (config.debug) {
+      data.stack = err.stack;
+    } else {
+      data.message = 'Server has some problems. :(';
+    }
+  }
+
+  res.json(statusCode, data);
 });
 
 app = http.createServer(app);

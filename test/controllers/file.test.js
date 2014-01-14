@@ -73,6 +73,22 @@ describe('controllers/file.test.js', function () {
       });
     });
 
+    it('should 400 when store unsafe path', function (done) {
+      var url = 'http://127.0.0.1:' + app.address().port + '/store';
+      var filepath = path.join(fixtures, 'cov-0.0.2.tgz');
+      var file = {
+        path: filepath,
+        name: '.',
+        shasum: '4e216f9041fea1af3aefc7a275883876efe5290c',
+      };
+      utils.sendfile(url, file, function (err, result, res) {
+        should.not.exist(err);
+        result.should.eql({"message": "params missing"});
+        res.should.status(400);
+        done();
+      });
+    });
+
     it('should 400 when shasum wrong', function (done) {
       var url = 'http://127.0.0.1:' + app.address().port + '/store';
       var filepath = path.join(fixtures, 'cov-0.0.2.tgz');
@@ -126,6 +142,9 @@ describe('controllers/file.test.js', function () {
       request(app)
       .get('/file/cov/cov1-0.0.1.tgz')
       .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
       .expect(404, done);
     });
 
@@ -133,6 +152,50 @@ describe('controllers/file.test.js', function () {
       request(app)
       .get('/file/foo/foo-0.0.1.tgz')
       .expect(401, done);
+    });
+
+    it('should 404 when try to get dir info', function (done) {
+      request(app)
+      .get('/file/cov')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
+
+    it('should 404 when try to get root dir info', function (done) {
+      request(app)
+      .get('/file//////')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
+
+    it('should 404 when try to get unsafe file info', function (done) {
+      request(app)
+      .get('/file/../../../../etc/hosts')
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
+    });
+
+    it('should 404 when ENAMETOOLONG', function (done) {
+      var longfilename = '';
+      for (var i = 0; i < 100; i++) {
+        longfilename += 'longfilenamelongfilenamelongfilenamelongfilenamelongfilename';
+      }
+      request(app)
+      .get('/file/' + longfilename)
+      .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
+      .expect(404, done);
     });
   });
 
