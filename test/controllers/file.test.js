@@ -126,6 +126,9 @@ describe('controllers/file.test.js', function () {
       request(app)
       .get('/file/cov/cov1-0.0.1.tgz')
       .set('Authorization', 'Basic ' + auth)
+      .expect({
+        message: 'not found'
+      })
       .expect(404, done);
     });
 

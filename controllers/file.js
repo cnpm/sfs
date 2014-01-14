@@ -19,18 +19,24 @@ var eventproxy = require('eventproxy');
 var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
-var utils = require('../common/utils');
 var crypto = require('crypto');
+var onSocketError = require('on-socket-error');
+var utils = require('../common/utils');
 var logger = require('../common/logger');
 var config = require('../config');
+
+function storepath(filename) {
+  // remove unsafe chars, like '../../../../etc/password'
+  filename = path.join('/', filename);
+  return path.join(config.rootDir, filename);
+}
 
 exports.get = function (req, res, next) {
   var filename = req.params && req.params[0] || '';
   if (!filename) {
     return next();
   }
-  filename = path.join('/', filename);
-  filename = path.join(config.rootDir, filename);
+  filename = storepath(filename);
   fs.stat(filename, function (err, stat) {
     if (err) {
       if (err.code === 'ENOENT') {
@@ -40,7 +46,11 @@ exports.get = function (req, res, next) {
     }
     // TODO: http headers
     res.setHeader('Content-Length', stat.size);
-    fs.createReadStream(filename).pipe(res);
+    var stream = fs.createReadStream(filename);
+    stream.pipe(res);
+    onSocketError(res, function () {
+      stream.destroy();
+    });
   });
 };
 
@@ -65,8 +75,7 @@ exports.remove = function (req, res, next) {
   if (!filename) {
     return res.json(400, {message: 'filename missing'});
   }
-  var filepath = path.join('/', filename);
-  filepath = path.join(config.rootDir, filepath);
+  var filepath = storepath(filename);
   debug('delete file %s', filepath);
   fs.stat(filepath, function (err, stat) {
     if (err) {
@@ -74,8 +83,7 @@ exports.remove = function (req, res, next) {
         removefile(filename);
         return res.json(404, {message: 'file not exists'});
       }
-      logger.error(err);
-      return res.json(500, {message: err.message});
+      return next(err);
     }
     removefile(filename);
     fs.unlink(filepath, function () {});
@@ -88,15 +96,13 @@ exports.removeOther = function (req, res, next) {
   if (!filename) {
     return res.json(400, {message: 'filename missing'});
   }
-  filename = path.join('/', filename);
-  filename = path.join(config.rootDir, filename);
+  filename = storepath(filename);
   fs.stat(filename, function (err, stat) {
     if (err) {
       if (err.code === 'ENOENT') {
         return res.json(404, {message: 'file not exists'});
       }
-      logger.error(err);
-      return res.json(500, {message: err.message});
+      return next(err);
     }
     fs.unlink(filename, function () {});
     res.json(200, {ok: true});
@@ -127,10 +133,7 @@ var savefile = function (req, callback) {
     return callback(err);
   }
 
-  // remove unsafe path chars
-  filename = path.join('/', filename);
-  var savepath = path.join(config.rootDir, filename);
-
+  var savepath = storepath(filename);
   debug('save file: %s to %s, shasum: %s size: %s, name: %s, type: %s, path: %s',
     filename, savepath, shasum, file.size, file.name, file.type, file.path);
 
@@ -150,9 +153,10 @@ var savefile = function (req, callback) {
       }).on('end', function () {
         sha1 = sha1.digest('hex');
         if (sha1 !== shasum) {
-          err = new Error('shasum ' + shasum + ' not match server\'s ' + sha1);
-          err.statusCode = 400;
-          return callback(err);
+          return callback({
+            statusCode: 400,
+            message: 'shasum ' + shasum + ' not match server\'s ' + sha1
+          });
         }
         callback(null, {
           name: filename,
@@ -167,12 +171,7 @@ var savefile = function (req, callback) {
 
 exports.store = function (req, res, next) {
   var ep = eventproxy.create();
-  ep.fail(function (err) {
-    logger.error(err);
-    res.json(err.statusCode || 500, {
-      message: err.message
-    });
-  });
+  ep.fail(next);
 
   savefile(req, ep.doneLater('savefile'));
 
@@ -198,7 +197,8 @@ exports.store = function (req, res, next) {
       };
       syncfile(node, f, ep.done(function (result) {
         if (!result || !result.ok) {
-          var err = new Error('Sync ' + f.path + ' to ' + node.ip + ':' + node.port + ' fail.');
+          var err = new Error('Sync ' + f.path + ' to ' + node.ip + ':' + node.port + ' fail: ' + result.message);
+          err.name = 'SyncFileError';
           return ep.emit('error', err);
         }
         ep.emit('syncfile');
@@ -214,11 +214,7 @@ exports.store = function (req, res, next) {
 exports.sync = function (req, res, next) {
   savefile(req, function (err) {
     if (err) {
-      logger.error(err);
-      res.json(err.statusCode || 500, {
-        message: err.message
-      });
-      return;
+      return next(err);
     }
     res.json(201, {ok: true});
   });
