@@ -1,4 +1,9 @@
 
+0.0.5 / 2014-01-17 
+==================
+
+  * use finished instead of on-socket-error #3. release the form stream whatever result
+
 0.0.4 / 2014-01-14 
 ==================
 
