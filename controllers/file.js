@@ -20,7 +20,7 @@ var fs = require('fs');
 var path = require('path');
 var mkdirp = require('mkdirp');
 var crypto = require('crypto');
-var onSocketError = require('on-socket-error');
+var onFinished = require('finished');
 var utils = require('../common/utils');
 var logger = require('../common/logger');
 var config = require('../config');
@@ -71,7 +71,7 @@ exports.get = function (req, res, next) {
     res.setHeader('Content-Length', stat.size);
     var stream = fs.createReadStream(filename);
     stream.pipe(res);
-    onSocketError(res, function () {
+    onFinished(res, function (err) {
       stream.destroy();
     });
   });

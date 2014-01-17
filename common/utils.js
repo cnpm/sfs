@@ -32,7 +32,11 @@ exports.sendfile = function (url, file, callback) {
   };
   args.headers.Authorization = 'Basic ' +
     new Buffer(config.credentials.join(':')).toString('base64');
-  urllib.request(url, args, callback);
+  urllib.request(url, args, function () {
+    // release the form stream whatever result
+    form.destroy();
+    callback.apply(null, arguments);
+  });
 };
 
 exports.removefile = function (url, callback) {
