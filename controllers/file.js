@@ -164,9 +164,28 @@ var savefile = function (req, callback) {
     }
 
     fs.rename(file.path, savepath, function (err) {
+      var is;
+      var os;
       if (err) {
-        return callback(err);
+        if (err.code === 'EXDEV') {
+          is = fs.createReadStream(file.path);
+          os = fs.createWriteStream(savepath);
+          is.pipe(os);
+          is.on('end',function() {
+            fs.unlinkSync(file.path);
+          });
+          os.on('error', callback);
+          os.on('finish', function() {
+              done();
+          });
+        } else {
+          return callback(err);
+        }
       }
+      done();
+    });
+
+    function done() {
       var sha1 = crypto.createHash('sha1');
       var rs = fs.createReadStream(savepath);
       rs.on('data', function (data) {
@@ -185,7 +204,7 @@ var savefile = function (req, callback) {
           shasum: shasum
         });
       });
-    });
+    }
 
   });
 };
