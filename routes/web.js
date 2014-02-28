@@ -17,8 +17,9 @@
 var multipart = require('connect-multiparty');
 var file = require('../controllers/file');
 var home = require('../controllers/home');
+var config = require('../config');
 
-var multipartMiddleware = multipart();
+var multipartMiddleware = multipart({uploadDir: config.uploadDir});
 
 function routes(app) {
   app.get('/', home);

@@ -31,6 +31,7 @@ var config = {
   credentials: ['sfsadmin', 'sfsadmin123'],
   rootDir: path.join(tmpdir, 'files'),
   logdir: path.join(tmpdir, 'logs'),
+  // uploadDir: /tmp, upload tmp dir
 };
 
 mkdirp.sync(config.logdir);

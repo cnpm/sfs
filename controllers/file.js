@@ -164,25 +164,22 @@ var savefile = function (req, callback) {
     }
 
     fs.rename(file.path, savepath, function (err) {
-      var is;
-      var os;
-      if (err) {
-        if (err.code === 'EXDEV') {
-          is = fs.createReadStream(file.path);
-          os = fs.createWriteStream(savepath);
-          is.pipe(os);
-          is.on('end',function() {
-            fs.unlinkSync(file.path);
-          });
-          os.on('error', callback);
-          os.on('finish', function() {
-              done();
-          });
-        } else {
-          return callback(err);
-        }
+      if (!err) {
+        return done();
       }
-      done();
+
+      if (err.code !== 'EXDEV') {
+        return callback(err);
+      }
+
+      var is = fs.createReadStream(file.path);
+      var os = fs.createWriteStream(savepath);
+      is.pipe(os);
+      is.on('end',function () {
+        fs.unlinkSync(file.path);
+      });
+      os.on('error', callback);
+      os.on('finish', done);
     });
 
     function done() {
