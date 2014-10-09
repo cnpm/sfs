@@ -26,7 +26,7 @@ var sfs = require('sfs');
 
 sfs.start({
   enableCluster: true,
-  rootDir: '/home/admin/sfs/files'
+  rootDir: '/home/admin/sfs/files',
   logdir: '/home/admin/sfs/logs',
   port: 8081,
   nodes: [
@@ -43,7 +43,7 @@ var sfs = require('sfs');
 
 sfs.start({
   enableCluster: true,
-  rootDir: '/home/admin/sfs/files'
+  rootDir: '/home/admin/sfs/files',
   logdir: '/home/admin/sfs/logs',
   port: 8082,
   nodes: [
