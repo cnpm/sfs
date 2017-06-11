@@ -30,7 +30,7 @@
     "logfilestream": "0.1.0",
     "mkdirp": "0.3.5",
     "moment": "2.5.0",
-    "ms": "0.6.2",
+    "ms": "2.0.0",
     "response-patch": "0.1.1",
     "urllib": "0.5.5",
     "urlrouter": "0.5.4"
