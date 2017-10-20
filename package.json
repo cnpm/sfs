@@ -21,7 +21,7 @@
     "address": "0.0.3",
     "body-parser": "1.0.0",
     "connect": "2.12.0",
-    "connect-multiparty": "1.0.1",
+    "connect-multiparty": "2.1.0",
     "debug": "0.7.4",
     "eventproxy": "0.2.6",
     "finished": "1.1.1",
