@@ -29,7 +29,7 @@
     "graceful": "0.0.5",
     "logfilestream": "0.1.0",
     "mkdirp": "0.3.5",
-    "moment": "2.5.0",
+    "moment": "2.29.2",
     "ms": "0.6.2",
     "response-patch": "0.1.1",
     "urllib": "0.5.5",
